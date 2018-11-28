@@ -1,15 +1,18 @@
 <html>
-  <head></head>
+  <head>
+    <style>
+      body {
+        background: <%= correct_colour %>;
+      }
+    </style>
+  </head>
+
   <body>
     <p>
+      <h2>Welcome to your Sinatra number guesser!</h2>
+      <p>Click play to make your first guess!</p>
       <form>
-        <input type='text' name='guess' />
-        <input type='submit' value='Guess!' />
+        <input type='submit' name='play' value='Play!' >
       </form>
-
-      <p>
-      <%= message %>
-      </p>
-
   </body>
 </html>
