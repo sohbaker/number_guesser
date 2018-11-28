@@ -1,42 +1,55 @@
 require 'sinatra'
 require 'sinatra/reloader'
+require '../web_guesser/play_web_guesser.rb'
 
-SECRET_NUMBER = rand(100)
+SECRET_NUMBER = rand(1..100)
 
 get '/' do
-  guess = params["guess"]
-  message = check_guess(guess)
-  puts message
+  correct_colour = "yellow"
+  if params["play"]
+    redirect to("/presentation")
+  end
+  erb :index, :locals => {:correct_colour => correct_colour}
+end
 
-  erb :index, :locals => {:message => message}
+get '/presentation' do
+  guess = params["guess"]
+  correct_colour = "yellow"
+
+  if guess.to_i >= 1
+    message = check_guess(guess)
+    if message.include? "Way"
+      correct_colour = "red"
+      puts message +  "\nMake another guess!"
+    elsif message.include? "A little"
+      correct_colour = "orange"
+      puts message +  "\nMake another guess!"
+    end
+
+    if message.include? "right"
+      correct_colour = "green"
+      puts message
+    end
+  end
+
+  erb :presentation, :locals => {:message => message, :correct_colour => correct_colour}
 end
 
 def check_guess(guess)
-  guess_as_integer = guess.to_i
-  message = ""
+  print_outcomes = PlayWebGuesser.new(guess, SECRET_NUMBER)
 
-  if guess_as_integer == SECRET_NUMBER
-    message << 'You got it right! THE SECRET NUMBER IS ' + SECRET_NUMBER.to_s
-    return message
-  elsif guess_as_integer > SECRET_NUMBER
-    if guess_as_integer > SECRET_NUMBER + 5
-      message << 'Way too high!'
-      return message
-    else
-      message << 'Too high!'
-      return message
+  sn_minus = SECRET_NUMBER - 5
+  sn_plus = SECRET_NUMBER + 5
+  guess_as_integer = guess.to_i
+
+  if guess.to_i >= 1
+    if guess_as_integer == SECRET_NUMBER
+      print_outcomes.correct
+    elsif guess_as_integer.between?(sn_minus, sn_plus)
+      print_outcomes.within_five_numbers
+    elsif guess_as_integer > SECRET_NUMBER + 5 || guess_as_integer < SECRET_NUMBER - 5
+      print_outcomes.way_too_high_or_way_too_low
     end
-  elsif guess_as_integer < SECRET_NUMBER && guess_as_integer >= 1
-    if guess_as_integer < SECRET_NUMBER - 5
-      message << 'Way too low!'
-      return message
-    elsif
-      message << 'Too low!'
-      return message
-    end
-  else
-    message << 'please make a guess'
-    return message
   end
 
 end
