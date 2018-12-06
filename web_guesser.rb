@@ -7,12 +7,12 @@ SECRET_NUMBER = rand(1..100)
 get '/' do
   correct_colour = "yellow"
   if params["play"]
-    redirect to("/presentation")
+    redirect to("/play_game")
   end
   erb :index, :locals => {:correct_colour => correct_colour}
 end
 
-get '/presentation' do
+get '/play_game' do
   guess = params["guess"]
   correct_colour = "yellow"
 
@@ -27,12 +27,17 @@ get '/presentation' do
     end
 
     if message.include? "right"
-      correct_colour = "green"
-      puts message
+      redirect to("/correct_guess")
     end
   end
 
-  erb :presentation, :locals => {:message => message, :correct_colour => correct_colour}
+  erb :play_game, :locals => {:message => message, :correct_colour => correct_colour}
+end
+
+get '/correct_guess' do
+  correct_colour = "green"
+  message = "You got it right! THE SECRET NUMBER IS #{SECRET_NUMBER}"
+  erb :correct_guess, :locals => {:message => message, :correct_colour => correct_colour}
 end
 
 def check_guess(guess)
